@@ -42,7 +42,9 @@ class DealCrudController extends CrudController
         CRUD::column('account_id');
         CRUD::column('deal_name');
         CRUD::column('iso_id');
-        CRUD::column('sales_stage');
+        CRUD::column('sales_stage')->orderBy(function ($query, $columnDirection) {
+            return $query->orderByRaw("FIELD(sales_stage, 'new deal', 'missing info', 'deal won', 'deal lost') $columnDirection");
+        });
         CRUD::column('submission_date');
 
         /**
@@ -78,15 +80,27 @@ class DealCrudController extends CrudController
         // Submission date filter
         $this->crud->addFilter(
             [
-                'type'  => 'date_range  ',
+                'type'  => 'date_range',
                 'name'  => 'submission_date',
-                'label' => 'Submission Date'
+                'label' => 'Submission Date Range'
             ],
             false,
             function ($value) {
                 $this->crud->addClause('where', 'submission_date', $value);
             }
         );
+        // // Submission date filter
+        // $this->crud->addFilter(
+        //     [
+        //         'type'  => 'date',
+        //         'name'  => 'submission_date',
+        //         'label' => 'Submission Date'
+        //     ],
+        //     false,
+        //     function ($value) {
+        //         $this->crud->addClause('where', 'submission_date', $value);
+        //     }
+        // );
     }
 
     /**
@@ -104,13 +118,8 @@ class DealCrudController extends CrudController
             'type' => 'date_picker',
             'label' => "Submission Date",
         ]);
-        CRUD::field('account_id')->label('Account');
-        $this->crud->addField([
-            'name' => 'deal_name',
-            'type' => 'text',
-            'label' => "Deal Name"
-        ]);
-        CRUD::field('iso_id')->label('ISO');
+        CRUD::field('account_id')->label('Account')->type('select2')->model('App\Models\Account')->attribute('business_name')->entity('account');
+        CRUD::field('iso_id')->label('ISO')->type('select2')->model('App\Models\Iso')->attribute('business_name')->entity('iso');
         CRUD::field('sales_stage')->type('select_from_array')->options(['new deal' => 'New Deal', 'missing info' => 'Missing Info', 'deal won' => 'Deal Won', 'deal lost' => 'Deal Lost']);
         /**
          * Fields can be defined using the fluent syntax or array syntax:

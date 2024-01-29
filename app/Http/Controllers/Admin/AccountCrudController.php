@@ -39,12 +39,14 @@ class AccountCrudController extends CrudController
      */
     protected function setupListOperation()
     {
-        CRUD::column('id');
         CRUD::column('business_name');
         CRUD::column('industry_id');
-        CRUD::column('owners');
-        CRUD::column('created_at');
-        CRUD::column('updated_at');
+        $this->crud->addColumn([
+            'label' => "Owners",
+            'name' => "owners",
+            'type' => 'multidimensional_array',
+            'visible_key' => 'name' // The key to the attribute you would like shown in the enumeration
+        ]);
 
         /**
          * Columns can be defined using the fluent syntax or array syntax:
